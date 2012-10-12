@@ -37,7 +37,7 @@ public class FiCanvas extends GameCanvasEngine implements Runnable {
 		return new FiCanvas(FFMIDlet.getInstance());
 	}
 	
-
+	Purchase purchase;
 	private SGraphics g;
 	private final int ScreenW, ScreenH;
 	private int FontW = 12, FontH = 15;
@@ -162,15 +162,15 @@ public class FiCanvas extends GameCanvasEngine implements Runnable {
 	private final int[][] Speed = {// npc移动速度
 	{ 3, 6 }, { 6, 3 }, { 9, 0 }, { 6, -3 }, { 3, -6 } };
 
-	private Image imgYidong, imgBbs, imgMain1, imgMain2, imgFrm, imgSound,
+	private Image  imgMain1, imgMain2, imgFrm, imgSound,
 			imgCoin, imgMenu, imgHelp,imgHelp2, imgRank, imgPage ,imgCharge,imgSelect;
 	//提示框中的魚
 	private Image imgblue,imgyellow,imgbian,imgbigtummy,imgchangyumiao,imgdolphin,
 	        imgjinyu,imgliyu,imgqiudao,imgshayu,imgshirenyu,imgturtle,imgxiaoyu;
 	
-	private Image imgKa, imgPao, imgGu, imgDg, imgSd, imgXiao, imgDa, imgWu,
-			imgCom, imgPearl, imgWalk ,imgPao1, imgPao2;
-	private Image imgMap, imgInfo, imgLevel, imgLine, imgNumber, imgSelect1,
+	private Image imgKa, imgPao, imgGu, imgDg, 
+			 imgPearl, imgWalk ,imgPao1, imgPao2;
+	private Image imgMap, imgInfo, imgLevel, imgLine, imgNumber, 
 			imgSelect2, imgPrompt2, imgFish, imgEye;
 	private Image imgRole[] = new Image[25];
 	private Image imgWudi[] = new Image[4]; 
@@ -254,7 +254,7 @@ public class FiCanvas extends GameCanvasEngine implements Runnable {
 		time = 100;
 		isRed = false;
 		noHalt = true;
-		// soundInit();
+		purchase = new Purchase(this);
 	}
 
 	protected void drawAll(SGraphics g) {
@@ -307,11 +307,11 @@ public class FiCanvas extends GameCanvasEngine implements Runnable {
 			} else if (state == 22) {
 				drawPrompt();  
 			} else if (state == 23) {
-				//drawPruchase(g);  //画订购 提示  
+				drawPruchase(g);  //画订购 提示  
 			} else if (state == 24) { //订购成功
-				//drawRechange(g);
+				drawRechange(g);
 			} else if (state == 25) { //订购失败
-				//drawFail(g);
+				drawFail(g);
 			} else if (state == 26) { //没有游戏记录时给出的提示
 				drawRecord();
 			} else if (state == 27) { //金币不足时提示
@@ -375,11 +375,11 @@ public class FiCanvas extends GameCanvasEngine implements Runnable {
 					} else if (state == 22) {
 						runPrompt();        //升级提示可以吃的鱼的种类
 					} else if (state == 23) {  //订购提示
-						//runPurchase();
+						runPurchase();
 					} else if (state == 24) {  //订购成功
-						//runRechange();
+						runRechange();
 					} else if (state == 25) {  //订购失败
-						//runFail();
+						runFail();
 					} else if (state == 26) {  //没有游戏记录时给出提示
 						runRecord();
 					} else if (state == 27) {  //金币不足时给出提示
@@ -412,6 +412,57 @@ public class FiCanvas extends GameCanvasEngine implements Runnable {
 		}
 	}
 	
+	private void runFail() {  //订购失败
+		if (keyState.containsAndRemove(KeyCode.OK)) {// 确定
+			purchase.releaseRes();
+			state = 3; // main
+		}
+	}
+
+	private void drawFail(SGraphics g2) {
+		purchase.draw3(g2);
+	}
+
+	private void runRechange() {  //订购成功
+		if (keyState.containsAndRemove(KeyCode.OK)) {// 确定
+			purchase.releaseRes();
+			state = 20; //订购成功重新开始游戏
+		}
+	}
+	
+
+	private void drawRechange(SGraphics g2) { 
+		purchase.draw2(g2);
+	}
+
+	private void runPurchase() {  //订购
+		
+		if (keyState.containsAndRemove(KeyCode.LEFT)) {// 左
+			purchase.menuPos = 0;
+		} else if (keyState.containsAndRemove(KeyCode.RIGHT)) {// 右
+			purchase.menuPos = 1;
+		} else if (keyState.containsAndRemove(KeyCode.OK)) {// 确定
+			if(purchase.menuPos == 0){
+				rechange = purchase.doPurchase();  //rechange 为0 充值成功
+				if(rechange == 0) {
+					state = 24;
+					isPaidToPlay = true;
+				} else {
+					state = 25;
+					isPaidToPlay = false;
+				}
+			} else if(purchase.menuPos == 1){
+				
+				isPaidToPlay = false;
+				state = 3; // main
+			}
+		}
+	}
+	
+	private void drawPruchase(SGraphics g) {
+		purchase.draw(g);
+	}
+	
 	private int selectFlag = 1;
 	private void runCharging() {
 		if(keyState.containsAndRemove(KeyCode.LEFT)){
@@ -437,9 +488,9 @@ public class FiCanvas extends GameCanvasEngine implements Runnable {
 		for (int i = props.size() - 1; i >= 0; --i) { //清空
 			props.removeElementAt(i);
 		}
-		imgCoin = imgKa = imgPao = imgGu = imgDg = imgXiao = imgDa = imgWu = imgLine = null;
+		imgCoin = imgKa = imgPao = imgGu = imgDg = imgLine = null;
 		imgPearl = imgWalk = imgMap = imgInfo = imgLevel = imgNumber = null;
-		imgPrompt = foot2 = imgProp = imgEye = imgFish = imgCom = null;
+		imgPrompt = foot2 = imgProp = imgEye = imgFish = null;
 		for (int i = imgRole.length - 1; i >= 0; --i) {
 			imgRole[i] = null;
 		}
@@ -643,7 +694,7 @@ public class FiCanvas extends GameCanvasEngine implements Runnable {
 	private void runYidong() {
 		
 		//isPaidToPlay = purchase.isPaidToPlay(); //判断是不是充值用户
-		isPaidToPlay = true;//demo
+		//isPaidToPlay = true;//demo
 		//System.out.println("判断是不是充值用户:" + isPaidToPlay);
 	
 		// if(System.currentTimeMillis() > timeClock){
@@ -670,7 +721,6 @@ public class FiCanvas extends GameCanvasEngine implements Runnable {
 
 	private void runBbs() {
 		if (System.currentTimeMillis() > timeClock) {
-			imgYidong = null;
 			timeClock = System.currentTimeMillis() + 1000;
 			coin = new Role();
 			coin.frame = 0;
@@ -1106,10 +1156,10 @@ public class FiCanvas extends GameCanvasEngine implements Runnable {
 
 	private void drawGame(SGraphics g) {
 		
-		//long timeFlag2 = System.currentTimeMillis();
-		//if(!isPaidToPlay && own.id == 1 && tollGate == 0 &&  timeFlag2 > timeFlag + 5000){
-			//state = 28;
-		//}else{
+		long timeFlag2 = System.currentTimeMillis();
+		if(!isPaidToPlay && own.id == 1 && tollGate == 0 &&  timeFlag2 > timeFlag + 5000){
+			state = 28;
+		}else{
 			if (isDebugMode()) {
 				addDebugUserMessage("1键:加经验; 2键:加金币; 3键:生命加1; 4键:屏蔽计费 ;5:打开计费");
 			}
@@ -1149,7 +1199,7 @@ public class FiCanvas extends GameCanvasEngine implements Runnable {
 				}
 				// g.setClip(0,ScreenH-4-12,12,12);//左键标记
 				// g.drawImage(imgCom,0,ScreenH-4,BottomLeft);
-			//}
+			}
 		}
 	}
 	
@@ -1585,9 +1635,9 @@ public class FiCanvas extends GameCanvasEngine implements Runnable {
 				state = 3;// main
 				isRed = false;
 			}
-			imgCoin = imgKa = imgPao = imgGu = imgDg = imgXiao = imgDa = imgWu = imgLine = null;
+			imgCoin = imgKa = imgPao = imgGu = imgDg = imgLine = null;
 			imgPearl = imgWalk = imgMap = imgInfo = imgLevel = imgNumber = null;
-			imgPrompt = foot2 = imgProp = imgEye = imgFish = imgCom = null;
+			imgPrompt = foot2 = imgProp = imgEye = imgFish = null;
 			for (int i = imgRole.length - 1; i >= 0; --i) {
 				imgRole[i] = null;
 			}
@@ -2401,7 +2451,7 @@ public class FiCanvas extends GameCanvasEngine implements Runnable {
 		 * --i){ if(res[i] != selectIndex){ imgRole[res[i]] = null; } }
 		 */
 		selectIndex = 3;
-		imgSelect1 = imgSelect2 = null;
+		imgSelect2 = null;
 		cleanConfine();
 		if (!npcs.isEmpty()) {
 			npcs.removeAllElements();
@@ -2468,7 +2518,7 @@ public class FiCanvas extends GameCanvasEngine implements Runnable {
 	private void runSelect() {
 
 		selectIndex = 3;
-		imgSelect1 = imgSelect2 = null;
+		imgSelect2 = null;
 		cleanConfine();
 		if (!npcs.isEmpty()) {
 			npcs.removeAllElements();
@@ -2625,9 +2675,9 @@ public class FiCanvas extends GameCanvasEngine implements Runnable {
 				for (int i = props.size() - 1; i >= 0; --i) {
 					props.removeElementAt(i);
 				}
-				imgCoin = imgKa = imgPao = imgGu = imgDg = imgXiao = imgDa = imgWu = imgLine = null;
+				imgCoin = imgKa = imgPao = imgGu = imgDg = imgLine = null;
 				imgPearl = imgWalk = imgMap = imgInfo = imgLevel = imgNumber = null;
-				imgPrompt = foot2 = imgProp = imgEye = imgFish = imgCom = null;
+				imgPrompt = foot2 = imgProp = imgEye = imgFish = null;
 				for (int i = imgRole.length - 1; i >= 0; --i) {
 					imgRole[i] = null;
 				}
