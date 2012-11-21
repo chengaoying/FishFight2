@@ -234,7 +234,7 @@ public class FiCanvas extends GameCanvasEngine implements Runnable {
 	public FiCanvas(MIDlet midlet) {
 		super(midlet);
 		this.midlet = midlet;
-
+		setRelease(false);
 		setFullScreenMode(true);
 		g = getSGraphics();
 		normalFont = Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_PLAIN,
