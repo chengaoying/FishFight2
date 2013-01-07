@@ -22,7 +22,6 @@ private static FFMIDlet instance;
 
 	protected void startApp() throws MIDletStateChangeException {
 		Display.getDisplay(this).setCurrent(FiCanvas.instance);
-		System.out.println(111111111);
 		new Thread(FiCanvas.instance).start();
 	}
 }
