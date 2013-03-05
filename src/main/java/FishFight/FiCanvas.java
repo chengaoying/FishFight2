@@ -468,7 +468,7 @@ public class FiCanvas extends GameCanvasEngine implements Runnable {
 	
 
 	private void drawCoin() {
-		int tw = curFont.stringWidth("金币不足300,按确认键返回!") + 30;
+		int tw = curFont.stringWidth("游戏币不足300,按确认键返回!") + 30;
 		int th = FontH + 20;
 		int tx = ScreenW / 2 - tw / 2;
 		int ty = ScreenH / 2 - th;
@@ -479,7 +479,7 @@ public class FiCanvas extends GameCanvasEngine implements Runnable {
 		g.drawRect(tx - 1, ty - 1, tw + 1, th + 1);// 画边
 		g.drawRect(tx - 2, ty - 2, tw + 3, th + 3);// 画边
 		g.setColor(0xffffff);
-		g.drawString("金币不足300,按确认键返回!", tx + 15, ty + 8, TopLeft);
+		g.drawString("游戏币不足300,按确认键返回!", tx + 15, ty + 8, TopLeft);
 	}
 
 
@@ -1604,7 +1604,7 @@ public class FiCanvas extends GameCanvasEngine implements Runnable {
 		String str1 = null;
 		switch (state) {
 		case 10:// pass
-			str1 = "游戏过关,奖励500金币";
+			str1 = "游戏过关,奖励500游戏币";
 			break;
 		case 11:// win
 			str1 = "游戏胜利";
